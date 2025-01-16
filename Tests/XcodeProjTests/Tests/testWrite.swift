@@ -43,6 +43,7 @@ func testWrite<T: Writable>(file: StaticString = #file,
 func testReadWriteProducesNoDiff(file _: StaticString = #file,
                                  line _: UInt = #line,
                                  from path: Path,
+                                 validating validationPath: Path? = nil,
                                  initModel: (Path) throws -> some Writable) throws
 {
     let tmpDir = try Path.uniqueTemporary()
@@ -50,9 +51,9 @@ func testReadWriteProducesNoDiff(file _: StaticString = #file,
         try? tmpDir.delete()
     }
 
-    let fileName = path.lastComponent
+    let fileName = (validationPath ?? path).lastComponent
     let tmpPath = tmpDir + fileName
-    try path.copy(tmpPath)
+    try (validationPath ?? path).copy(tmpPath)
 
     try tmpDir.chdir {
         // Create a commit
@@ -62,6 +63,11 @@ func testReadWriteProducesNoDiff(file _: StaticString = #file,
             "-c", "user.email=test@example.com", "-c", "user.name=Test User",
             "commit", "-m", "test",
         ])
+
+        if validationPath != nil {
+            try tmpPath.delete()
+            try path.copy(tmpPath)
+        }
 
         let object = try initModel(tmpPath)
         try object.write(path: tmpPath, override: true)

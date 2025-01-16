@@ -9,6 +9,15 @@ final class XcodeProjIntegrationTests: XCTestCase {
                                         initModel: XcodeProj.init(path:))
     }
 
+    func test_xcode16ProjectReferenceOrder() throws {
+        try testReadWriteProducesNoDiff(from: xcode16ProjectReferenceOrderTestPath,
+                                        initModel: XcodeProj.init(path:))
+
+        try testReadWriteProducesNoDiff(from: xcode16ProjectReferenceOrderWrongPath,
+                                        validating: xcode16ProjectReferenceOrderTestPath,
+                                        initModel: XcodeProj.init(path:))
+    }
+
     func test_read_iosXcodeProj() throws {
         let subject = try XcodeProj(path: iosProjectPath)
         assert(project: subject)
@@ -103,6 +112,14 @@ final class XcodeProjIntegrationTests: XCTestCase {
 
     private var xcode16ProjectPath: Path {
         fixturesPath() + "Xcode16/Test.xcodeproj"
+    }
+
+    private var xcode16ProjectReferenceOrderTestPath: Path {
+        fixturesPath() + "Xcode16ProjectReferenceOrder/Test.xcodeproj"
+    }
+
+    private var xcode16ProjectReferenceOrderWrongPath: Path {
+        fixturesPath() + "Xcode16ProjectReferenceOrder/Wrong.xcodeproj"
     }
 
     private var synchronizedRootGroupsFixturePath: Path {
